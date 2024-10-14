@@ -39,28 +39,20 @@ namespace RitaOfficeTool
             return headerLine1.Contains("年初余额") && headerLine1.Contains("年末余额");
         }
 
-        /// <summary>
-        /// 横向表头是不是一行
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        public bool RowHeaderIsSingleLine(Table table)
-        {
-            bool headLine1Error = false;
-            var headerLine1 = WordTableUtil.GetRawRowHeader(table, 1, out headLine1Error);
-            // headLine1Error=true
-            return !headLine1Error;
-        }
+        // /// <summary>
+        // /// 横向表头是不是一行
+        // /// </summary>
+        // /// <param name="table"></param>
+        // /// <returns></returns>
+        // public bool RowHeaderIsSingleLine(Table table)
+        // {
+        //     bool headLine1Error = false;
+        //     var headerLine1 = WordTableUtil.GetRawRowHeader(table, 1, out headLine1Error);
+        //     // headLine1Error=true
+        //     return !headLine1Error;
+        // }
 
-        /// <summary>
-        /// 横向表头有几行。目前只支持1或者2
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        public int RowHeaderLines(Table table)
-        {
-            return RowHeaderIsSingleLine(table) ? 1 : 2;
-        }
+
 
         /// <summary>
         /// 获取当前行中待拷贝的索引对。固定查找第一行，或者第二行是否满足要求
@@ -131,21 +123,20 @@ namespace RitaOfficeTool
 
         public void ReplaceColValue(Table table, Dictionary<int, int> pair)
         {
-            int rowIndex = 2;
-            if (!RowHeaderIsSingleLine(table)) rowIndex += 1;
+            int rowIndex = WordTableUtil.DataStartRow(table);
 
             foreach (KeyValuePair<int, int> kvp in pair)
             {
                 for (int i = rowIndex; i <= table.Rows.Count; i++) // 行
                 {
-                    var oldRangText = table.Cell(i, kvp.Key).Range.Text;
-                    // if (oldRangText.Equals("\r\a"))
+                    var oldRangText = WordTableUtil.CellText(table, i, kvp.Key);
+                    // if (oldRangText.Equals(""))
                     // {
                     //     System.Windows.Forms.MessageBox.Show("该文档已经使用过该功能了");
                     //     return;
                     // }
                     //
-                    oldRangText = oldRangText.Replace("\r\a", "");
+
                     table.Cell(i, kvp.Value).Range.Text = oldRangText;
                     table.Cell(i, kvp.Key).Range.Text = "";
                 }
@@ -176,23 +167,19 @@ namespace RitaOfficeTool
             var oldColStartIndex = 2;
             var gap = table.Columns.Count / 2; //3
             var newColStartIndex = gap + oldColStartIndex;
-            int rowIndex = 2;
-
-            if (!RowHeaderIsSingleLine(table)) rowIndex += 1;
+            int rowIndex = WordTableUtil.DataStartRow(table);
 
             // 待拷贝的列的次数
             for (int j = 0; j < gap; j++) //列
             {
                 for (int i = rowIndex; i <= table.Rows.Count; i++) // 行
                 {
-                    var oldRangText = table.Cell(i, oldColStartIndex + j).Range.Text;
-                    // if (oldRangText.Equals("\r\a"))
-                    // {
-                    //     System.Windows.Forms.MessageBox.Show("该文档已经使用过该功能了");
-                    //     return;
-                    // }
-
-                    oldRangText = oldRangText.Replace("\r\a", "");
+                    var oldRangText = WordTableUtil.CellText(table, i, oldColStartIndex + j);
+                    if (oldRangText.Equals(""))
+                    {
+                        System.Windows.Forms.MessageBox.Show("该文档已经使用过该功能了");
+                        return;
+                    }
                     table.Cell(i, newColStartIndex + j).Range.Text = oldRangText;
                     table.Cell(i, oldColStartIndex + j).Range.Text = "";
                 }

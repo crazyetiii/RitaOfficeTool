@@ -33,7 +33,7 @@
     <PublishUrl>E:\ocean\code\officeAddInPro\RitaOfficeTool\publish\</PublishUrl>
     <InstallUrl />
     <TargetCulture>zh-chs</TargetCulture>
-    <ApplicationVersion>1.0.0.1</ApplicationVersion>
+    <ApplicationVersion>1.0.0.2</ApplicationVersion>
     <AutoIncrementApplicationRevision>true</AutoIncrementApplicationRevision>
     <UpdateEnabled>true</UpdateEnabled>
     <UpdateInterval>7</UpdateInterval>
@@ -192,6 +192,7 @@
     <Compile Include="MyRibbon.Designer.cs">
       <DependentUpon>MyRibbon.cs</DependentUpon>
     </Compile>
+    <Compile Include="OrderTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

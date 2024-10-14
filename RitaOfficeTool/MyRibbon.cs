@@ -14,63 +14,6 @@ namespace RitaOfficeTool
         private TableSum _tableSum = new TableSum();
         private ModifyYear _modifyYear = new ModifyYear();
 
-
-        private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
-        {
-        }
-
-        // 更新 Word 状态栏
-        private void UpdateStatusBar(string message)
-        {
-            Application wordApp = Globals.ThisAddIn.Application;
-
-            // 将信息设置到状态栏
-            wordApp.StatusBar = message;
-        }
-
-        private void button2_Click(object sender, RibbonControlEventArgs e)
-        {
-            // 获取当前 Word 应用程序对象
-            Application wordApp = Globals.ThisAddIn.Application;
-
-            // 例如，获取当前活动文档
-            Document activeDoc = wordApp.ActiveDocument;
-
-            // 获取选中的文本
-            Selection selection = wordApp.Selection;
-
-            // 判断当前是否选中表格中的数据
-            if (selection.Tables.Count < 0)
-            {
-                // 未选中表格，弹出提示
-                System.Windows.Forms.MessageBox.Show("请先选中表格中的数据", "提示", System.Windows.Forms.MessageBoxButtons.OK,
-                    System.Windows.Forms.MessageBoxIcon.Warning);
-                return;
-            }
-
-            // 选中了表格中的数据，获取第一个选中的表格
-            Table selectedTable = selection.Tables[1];
-            // 打印横向表头
-            var msg = _tableSum.SumSelectedCellsData(selection, selectedTable);
-            UpdateStatusBar(msg);
-        }
-
-
-        private void button1_Click(object sender, RibbonControlEventArgs e)
-        {
-            // 获取当前 Word 应用程序对象
-            Application wordApp = Globals.ThisAddIn.Application;
-
-            // 获取当前活动文档
-            Document activeDoc = wordApp.ActiveDocument;
-
-            // 获取文档中的所有表格
-            Tables tables = activeDoc.Tables;
-            ClearAllTableData(tables);
-            activeDoc.Save(); // 直接保存
-            UpdateStatusBar($"清理完成!");
-        }
-
         /// <summary>
         /// 清除所有文档表格中数字中的空白
         /// </summary>
@@ -111,59 +54,64 @@ namespace RitaOfficeTool
             }
         }
 
-        public void InsertColumnInTable(Document document, int tableIndex, int columnIndex)
+        // 更新 Word 状态栏
+        private void UpdateStatusBar(string message)
         {
-            // 获取指定的表格
-            Table table = document.Tables[tableIndex];
-
-            // 检查列索引是否合法
-            if (columnIndex < 1 || columnIndex > table.Columns.Count + 1)
-            {
-                System.Windows.Forms.MessageBox.Show("列索引不合法，必须在1到" + (table.Columns.Count + 1) + "之间。");
-                return;
-            }
-
-            // 插入新列
-            table.Columns.Add(table.Cell(1, columnIndex).Range);
-
-            // 可以选择填充新列的内容
-            for (int rowIndex = 1; rowIndex <= table.Rows.Count; rowIndex++)
-            {
-                table.Cell(rowIndex, columnIndex).Range.Text = "新列数据"; // 或者根据需要填充数据
-            }
-
-            // 提示用户操作已完成
-            System.Windows.Forms.MessageBox.Show("已在表格中插入新列。");
+            Application wordApp = Globals.ThisAddIn.Application;
+            // 将信息设置到状态栏
+            wordApp.StatusBar = message;
         }
 
-        public void GetMergedCells(Table table)
+        private static bool SelectionIsTableData(out Selection selection)
         {
-            foreach (Cell cell in table.Range.Cells)
+            // 获取当前 Word 应用程序对象
+            Application wordApp = Globals.ThisAddIn.Application;
+            // 获取选中的文本
+            selection = wordApp.Selection;
+
+            // 判断当前是否选中表格中的数据
+            if (selection.Tables.Count == 0)
             {
-                // 获取行号和列号
-                int rowIndex = cell.RowIndex;
-                int columnIndex = cell.ColumnIndex;
-
-                // 获取单元格内容（文本）
-                string cellText = cell.Range.Text.Trim(); // 使用 Trim 去除多余的换行符或空格
-
-                // 打印单元格信息
-                Debug.WriteLine($"单元格位置: ({rowIndex}, {columnIndex}),单元格内容: {cellText}");
-
-                int start = cell.Range.Start;
-                int end = cell.Range.End;
-
-                // 如果 cell.Range 的 Start 和 End 不同，说明这个单元格可能是合并单元格
-                if (end - start > 1)
-                {
-                    Debug.WriteLine($"合并单元格: 行 {cell.RowIndex}, 列 {cell.ColumnIndex}");
-                }
-                else
-                {
-                    Debug.WriteLine($"未合并单元格: 行 {cell.RowIndex}, 列 {cell.ColumnIndex}");
-                }
+                // 未选中表格，弹出提示
+                System.Windows.Forms.MessageBox.Show("请先选中表格中的数据", "提示", System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.Warning);
+                return false;
             }
+
+            return true;
         }
+
+        private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
+        {
+        }
+
+
+        private void button1_Click(object sender, RibbonControlEventArgs e)
+        {
+            // 获取当前 Word 应用程序对象
+            Application wordApp = Globals.ThisAddIn.Application;
+
+            // 获取当前活动文档
+            Document activeDoc = wordApp.ActiveDocument;
+
+            // 获取文档中的所有表格
+            Tables tables = activeDoc.Tables;
+            ClearAllTableData(tables);
+            activeDoc.Save(); // 直接保存
+            UpdateStatusBar($"清理完成!");
+        }
+
+        private void button2_Click(object sender, RibbonControlEventArgs e)
+        {
+            if (!SelectionIsTableData(out var selection)) return;
+
+            // 选中了表格中的数据，获取第一个选中的表格
+            Table selectedTable = selection.Tables[1];
+            // 打印横向表头
+            var msg = _tableSum.SumSelectedCellsData(selection, selectedTable);
+            UpdateStatusBar(msg);
+        }
+
 
         private void button3_Click(object sender, RibbonControlEventArgs e)
         {
@@ -174,17 +122,12 @@ namespace RitaOfficeTool
             Document activeDoc = wordApp.ActiveDocument;
             Tables tables = activeDoc.Tables;
 
-            // 对所有情况进行分类.
-            // 1,只移动旧列到新列的
-            // 2,需要移动旧列的子列的
-
-
             // 1.中文文档
             foreach (Table table in tables)
             {
                 if (_modifyYear.ValidRow(table, 1)) // 关键字在第1行
                 {
-                    if (_modifyYear.RowHeaderIsSingleLine(table)) // 表头只有1行。对称和非对称都可用.
+                    if (WordTableUtil.RowHeaderIsSingleLine(table)) // 表头只有1行。对称和非对称都可用.
                     {
                         var validPair = _modifyYear.ValidPair(table);
                         _modifyYear.ReplaceColValue(table, validPair);
@@ -207,6 +150,38 @@ namespace RitaOfficeTool
 
             activeDoc.Save(); // 直接保存
             UpdateStatusBar($"添加年份完成!");
+        }
+
+
+        private void button4_Click_1(object sender, RibbonControlEventArgs e)
+        {
+            if (!SelectionIsTableData(out var selection)) return;
+
+            // 选中了表格中的数据，获取第一个选中的表格
+            Table table = selection.Tables[1];
+            if (selection.Columns.Count != 1)
+            {
+                System.Windows.Forms.MessageBox.Show("只能选择1列", "提示", System.Windows.Forms.MessageBoxButtons.OK,
+                    System.Windows.Forms.MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (selection.Cells.Count == 1) // 点击排序列的任意单元格
+            {
+                Cell selectedCell = selection.Cells[1];
+                // 获取该单元格所在列的索引
+                int toOrderColIndex = selectedCell.ColumnIndex;
+                OrderTable.OrderAllData(table, toOrderColIndex);
+            }
+            else // 只排序选中的单元格
+            {
+                var cellRangeInfo = WordTableUtil.GetCellRangeInfo(selection);
+                OrderTable.OrderPartData(table, cellRangeInfo.MinColumn, cellRangeInfo.MinRow, cellRangeInfo.MaxRow);
+            }
+
+            // 打印横向表头
+            var msg = "排序完成!";
+            UpdateStatusBar(msg);
         }
     }
 }
