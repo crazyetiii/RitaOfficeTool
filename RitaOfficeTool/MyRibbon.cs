@@ -12,6 +12,7 @@ namespace RitaOfficeTool
     public partial class MyRibbon
     {
         private TableSum _tableSum = new TableSum();
+        private ModifyYear _modifyYear = new ModifyYear();
 
 
         private void MyRibbon_Load(object sender, RibbonUIEventArgs e)
@@ -134,6 +135,36 @@ namespace RitaOfficeTool
             // 提示用户操作已完成
             System.Windows.Forms.MessageBox.Show("已在表格中插入新列。");
         }
+
+        public void GetMergedCells(Table table)
+        {
+            foreach (Cell cell in table.Range.Cells)
+            {
+                // 获取行号和列号
+                int rowIndex = cell.RowIndex;
+                int columnIndex = cell.ColumnIndex;
+
+                // 获取单元格内容（文本）
+                string cellText = cell.Range.Text.Trim(); // 使用 Trim 去除多余的换行符或空格
+
+                // 打印单元格信息
+                Debug.WriteLine($"单元格位置: ({rowIndex}, {columnIndex}),单元格内容: {cellText}");
+
+                int start = cell.Range.Start;
+                int end = cell.Range.End;
+
+                // 如果 cell.Range 的 Start 和 End 不同，说明这个单元格可能是合并单元格
+                if (end - start > 1)
+                {
+                    Debug.WriteLine($"合并单元格: 行 {cell.RowIndex}, 列 {cell.ColumnIndex}");
+                }
+                else
+                {
+                    Debug.WriteLine($"未合并单元格: 行 {cell.RowIndex}, 列 {cell.ColumnIndex}");
+                }
+            }
+        }
+
         private void button3_Click(object sender, RibbonControlEventArgs e)
         {
             // 获取当前 Word 应用程序对象
@@ -141,7 +172,41 @@ namespace RitaOfficeTool
 
             // 获取当前活动文档
             Document activeDoc = wordApp.ActiveDocument;
+            Tables tables = activeDoc.Tables;
 
+            // 对所有情况进行分类.
+            // 1,只移动旧列到新列的
+            // 2,需要移动旧列的子列的
+
+
+            // 1.中文文档
+            foreach (Table table in tables)
+            {
+                if (_modifyYear.ValidRow(table, 1)) // 关键字在第1行
+                {
+                    if (_modifyYear.RowHeaderIsSingleLine(table)) // 表头只有1行。对称和非对称都可用.
+                    {
+                        var validPair = _modifyYear.ValidPair(table);
+                        _modifyYear.ReplaceColValue(table, validPair);
+                    }
+                    else // 表头非1行,这里指两行 2024年10月14日08:14:01
+                    {
+                        _modifyYear.ReplaceSubColValue(table);
+                    }
+                }
+                else if (_modifyYear.ValidRow(table, 2)) // 关键字在第2行
+                {
+                    var validPair = _modifyYear.ValidPair(table);
+                    _modifyYear.ReplaceColValue(table, validPair);
+                }
+                else // 没有找到关键字
+                {
+                    continue;
+                }
+            }
+
+            activeDoc.Save(); // 直接保存
+            UpdateStatusBar($"添加年份完成!");
         }
     }
 }

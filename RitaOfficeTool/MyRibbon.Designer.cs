@@ -48,6 +48,7 @@
             // 
             this.tab1.ControlId.ControlIdType = Microsoft.Office.Tools.Ribbon.RibbonControlIdType.Office;
             this.tab1.Groups.Add(this.group1);
+            this.tab1.KeyTip = "1";
             this.tab1.Label = "TabAddIns";
             this.tab1.Name = "tab1";
             // 
@@ -82,9 +83,9 @@
             // button3
             // 
             this.button3.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
-            this.button3.Description = "表格中添加新年份,移除旧年份";
+            this.button3.Description = "表格年末余额更新到年初余额中";
             this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
-            this.button3.Label = "添加年份";
+            this.button3.Label = "中文年末余额";
             this.button3.Name = "button3";
             this.button3.ShowImage = true;
             this.button3.Click += new Microsoft.Office.Tools.Ribbon.RibbonControlEventHandler(this.button3_Click);
