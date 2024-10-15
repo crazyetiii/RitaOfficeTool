@@ -67,6 +67,7 @@
             this.button2.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.button2.Description = "选中表格数据求和";
             this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
+            this.button2.KeyTip = "1";
             this.button2.Label = "表格求和";
             this.button2.Name = "button2";
             this.button2.ShowImage = true;
@@ -77,6 +78,7 @@
             this.button1.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.button1.Description = "清除表格中数据的空白符";
             this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
+            this.button1.KeyTip = "2";
             this.button1.Label = "清除空白符";
             this.button1.Name = "button1";
             this.button1.ShowImage = true;
@@ -87,6 +89,7 @@
             this.button3.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.button3.Description = "表格年末余额更新到年初余额中";
             this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
+            this.button3.KeyTip = "3";
             this.button3.Label = "中文年末余额";
             this.button3.Name = "button3";
             this.button3.ShowImage = true;
@@ -97,6 +100,7 @@
             this.button4.ControlSize = Microsoft.Office.Core.RibbonControlSize.RibbonControlSizeLarge;
             this.button4.Description = "清除表格中数据的空白符";
             this.button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
+            this.button4.KeyTip = "4";
             this.button4.Label = "表格排序";
             this.button4.Name = "button4";
             this.button4.ShowImage = true;
