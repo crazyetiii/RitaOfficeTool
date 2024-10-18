@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+    <configSections>
+        <sectionGroup name="userSettings" type="System.Configuration.UserSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+            <section name="RitaOfficeTool.Rita" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" allowExeDefinition="MachineToLocalUser" requirePermission="false" />
+        </sectionGroup>
+        <sectionGroup name="applicationSettings" type="System.Configuration.ApplicationSettingsGroup, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" >
+            <section name="RitaOfficeTool.Rita" type="System.Configuration.ClientSettingsSection, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" requirePermission="false" />
+        </sectionGroup>
+    </configSections>
+    <userSettings>
+        <RitaOfficeTool.Rita>
+            <setting name="new_sub_str" serializeAs="String">
+                <value>年初余额|上年发生数|2021-12-31</value>
+            </setting>
+            <setting name="negative_number_str" serializeAs="String">
+                <value>本期减少|本年减少|减：</value>
+            </setting>
+        </RitaOfficeTool.Rita>
+    </userSettings>
+    <applicationSettings>
+        <RitaOfficeTool.Rita>
+            <setting name="old_sub_str" serializeAs="String">
+                <value>年末余额|本年发生数|2022-12-31</value>
+            </setting>
+        </RitaOfficeTool.Rita>
+    </applicationSettings>
+</configuration>

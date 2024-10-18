@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="RitaOfficeTool" GeneratedClassName="Rita">
+  <Profiles />
+  <Settings>
+    <Setting Name="old_sub_str" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">年末余额|本年发生数|2022-12-31</Value>
+    </Setting>
+    <Setting Name="new_sub_str" Type="System.String" Scope="User">
+      <Value Profile="(Default)">年初余额|上年发生数|2021-12-31</Value>
+    </Setting>
+    <Setting Name="negative_number_str" Type="System.String" Scope="User">
+      <Value Profile="(Default)">本期减少|本年减少|减：</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

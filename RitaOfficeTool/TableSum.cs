@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Linq;
 using Word = Microsoft.Office.Interop.Word;
 
@@ -50,7 +51,14 @@ namespace RitaOfficeTool
             if (index < 1 || index > headers.Count) return false;
 
             string itemContent = headers[index - 1];
-            return itemContent.Contains("本期减少") || itemContent.Contains("本年减少") || itemContent.Contains("减：");
+            string[] numbers = Rita.Default.negative_number_str.Split('|');
+
+            bool ret = false;
+            for (int i = 0;i<numbers.Count();i++)
+            {
+                ret |= itemContent.Contains(numbers[i]);
+            }
+            return ret;
         }
     }
 }

@@ -7,51 +7,8 @@ namespace RitaOfficeTool
 {
     public class ModifyYear
     {
-        public static List<string> oldStrList = new List<string>() { "年末余额", "本年发生数" };
-        public static List<string> newStrList = new List<string>() { "年初余额", "上年发生数" };
-
-        /// <summary>
-        /// 是不是中文中待修改的年份的表格
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        public bool NeedModifyYearTableForCn(Table table)
-        {
-            bool headLine1Error = false;
-            var headerLine1 = WordTableUtil.GetRawRowHeader(table, 1, out headLine1Error);
-            headerLine1 = headerLine1.Where(item => !string.IsNullOrWhiteSpace(item)).ToList();
-            Debug.WriteLine($"表头长度为:{headerLine1.Count}");
-            return (headerLine1.Contains("年初余额") && headerLine1.Contains("年末余额"));
-        }
-
-
-        /// <summary>
-        /// 是不是英文中待修改的年份的表格
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        public bool NeedModifyYearTableForEn(Table table)
-        {
-            bool headLine1Error = false;
-            var headerLine1 = WordTableUtil.GetRawRowHeader(table, 1, out headLine1Error);
-            headerLine1 = headerLine1.Where(item => !string.IsNullOrWhiteSpace(item)).ToList();
-
-            return headerLine1.Contains("年初余额") && headerLine1.Contains("年末余额");
-        }
-
-        // /// <summary>
-        // /// 横向表头是不是一行
-        // /// </summary>
-        // /// <param name="table"></param>
-        // /// <returns></returns>
-        // public bool RowHeaderIsSingleLine(Table table)
-        // {
-        //     bool headLine1Error = false;
-        //     var headerLine1 = WordTableUtil.GetRawRowHeader(table, 1, out headLine1Error);
-        //     // headLine1Error=true
-        //     return !headLine1Error;
-        // }
-
+        public static List<string> oldStrList = new List<string>(Rita.Default.old_sub_str.Split('|'));
+        public static List<string> newStrList = new List<string>(Rita.Default.new_sub_str.Split('|'));
 
 
         /// <summary>
@@ -65,10 +22,10 @@ namespace RitaOfficeTool
             var targetOldColIndex = FindColIndexs(rawHeaderList, oldStrList);
             if (targetOldColIndex.Count == 0) return pairLists; // 没找到
             var targetNewColIndex = FindColIndexs(rawHeaderList, newStrList);
+            if (targetNewColIndex.Count == 0) return pairLists; // 没找到
 
             for (int i = 0; i < targetOldColIndex.Count; i++)
             {
-                Debug.WriteLine($"旧位置:[{targetOldColIndex[i]}],新位置:[{targetNewColIndex[i]}]");
                 pairLists.Add(targetOldColIndex[i], targetNewColIndex[i]);
             }
 
@@ -121,29 +78,48 @@ namespace RitaOfficeTool
             return GetPairByRowIndex(table, 2); // 第二行返回时,不关心有没有值
         }
 
+        public bool IsEmpty(Table table, int col,int startRow)
+        {
+            for (int i = startRow; i < table.Rows.Count; i++) // 最后一行不算,合计
+            {
+                var oldRangText = WordTableUtil.CellText(table, i, col);
+                if (!oldRangText.Equals("")) // 有值
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
         public void ReplaceColValue(Table table, Dictionary<int, int> pair)
         {
             int rowIndex = WordTableUtil.DataStartRow(table);
+            bool clear = false;
 
-            foreach (KeyValuePair<int, int> kvp in pair)
+            foreach (KeyValuePair<int, int> kvp in pair) // 旧列,新列
             {
+                // 从rowIndex开始,检查该列是否为空,为空代表已经使用过了
                 for (int i = rowIndex; i <= table.Rows.Count; i++) // 行
                 {
-                    var oldRangText = WordTableUtil.CellText(table, i, kvp.Key);
-                    // if (oldRangText.Equals(""))
-                    // {
-                    //     System.Windows.Forms.MessageBox.Show("该文档已经使用过该功能了");
-                    //     return;
-                    // }
-                    //
-
-                    table.Cell(i, kvp.Value).Range.Text = oldRangText;
-                    table.Cell(i, kvp.Key).Range.Text = "";
+                    try
+                    {
+                        var oldRangText = WordTableUtil.CellText(table, i, kvp.Key);
+                        Debug.WriteLine(oldRangText);
+                        table.Cell(i, kvp.Value).Range.Text = oldRangText;
+                        table.Cell(i, kvp.Key).Range.Text = "";
+                    }
+                    catch (System.Exception)
+                    {
+                        continue;
+                    }
                 }
+                clear = true;
             }
 
             // 清空其他列
-            ClearOtherCol(table, pair, rowIndex);
+            if (clear)
+                ClearOtherCol(table, pair, rowIndex);
         }
 
         private static void ClearOtherCol(Table table, Dictionary<int, int> pair, int rowIndex)
@@ -156,7 +132,14 @@ namespace RitaOfficeTool
                 {
                     for (int i = rowIndex; i <= table.Rows.Count; i++) // 行
                     {
-                        table.Cell(i, col).Range.Text = "";
+                        try
+                        {
+                            table.Cell(i, col).Range.Text = "";
+                        }
+                        catch (System.Exception)
+                        {
+                            continue;
+                        }
                     }
                 }
             }
@@ -174,15 +157,18 @@ namespace RitaOfficeTool
             {
                 for (int i = rowIndex; i <= table.Rows.Count; i++) // 行
                 {
-                    var oldRangText = WordTableUtil.CellText(table, i, oldColStartIndex + j);
-                    if (oldRangText.Equals(""))
+                    try
                     {
-                        System.Windows.Forms.MessageBox.Show("该文档已经使用过该功能了");
-                        return;
+                        var oldRangText = WordTableUtil.CellText(table, i, oldColStartIndex + j);
+                        table.Cell(i, newColStartIndex + j).Range.Text = oldRangText;
+                        table.Cell(i, oldColStartIndex + j).Range.Text = "";
                     }
-                    table.Cell(i, newColStartIndex + j).Range.Text = oldRangText;
-                    table.Cell(i, oldColStartIndex + j).Range.Text = "";
+                    catch (System.Exception)
+                    {
+                        continue;
+                    }
                 }
+
             }
         }
     }
